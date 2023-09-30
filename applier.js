@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "./env.js";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import AnonymizeUA from "puppeteer-extra-plugin-anonymize-ua";
