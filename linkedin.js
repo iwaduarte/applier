@@ -34,20 +34,21 @@ const queryMap = {
   easyApply: "&f_LF=f_AL",
   under10Applicants: "f_EA=true",
 };
-
 const LINKEDIN_URL = "https://linkedin.com";
 const { USER_LOGIN, PASSWORD } = process.env;
 const applyLinkedIn = async (browser) => {
   const page = await browser.newPage();
 
   await page.goto(LINKEDIN_URL);
-  await page.waitForNavigation({ timeout: 1000 }).catch((err) => err);
+  await page
+    .waitForSelector(".text-input flex", { timeout: 3000 })
+    .catch((err) => err);
   await page.type("#session_key", USER_LOGIN, { delay: 100 });
   await page.type("#session_password", PASSWORD, { delay: 100 });
   await page.click('button[type="submit"]');
   await new Promise((r) => setTimeout(r, 2000));
 
-  const URL = buildSearchQuery();
+  const URL = buildSearchQuery({ keywords: "node.js " });
   await page.goto(URL);
   await page.waitForNavigation({ timeout: 1000 }).catch((err) => err);
 };
@@ -89,19 +90,21 @@ const buildSearchQuery = ({
       }`,
     ""
   );
-  const newKeywords = `${keywords} ${newIgnoreCompanies}`;
+  const newKeywords = `${keywords} ${newIgnoreCompanies}`.trim();
 
-  return `https://www.linkedin.com/jobs/search/results/\
-  ?keywords=${newKeywords}${newExperienceLevel}${newWorkingStyle}${newJobType}\
-  ${newEasyApply}${newUnder10Applicants}${newDatePosted}${newSortBy}${newDistance}${newLocation}`;
+  return `https://www.linkedin.com/jobs/search/\
+?keywords=${newKeywords}${newExperienceLevel}${newWorkingStyle}${newJobType}\
+${newEasyApply}${newUnder10Applicants}${newDatePosted}${newSortBy}${newDistance}${newLocation}`;
 };
 
 const reduceQuery = (itemArray, map) => {
-  return itemArray.reduce((acc, item, index) => {
-    if (index === itemArray.length - 1 && map[item])
-      return `${Object.keys(map)[0]}${acc},${map[item]}`;
+  const [key] = Object.keys(map);
 
-    return map[item] ? `${acc}${!index ? "" : ","}${map[item]}` : acc;
+  return itemArray.reduce((acc, item, index) => {
+    if (index === itemArray.length - 1 && map[key][item])
+      return `${key}${acc},${map[key][item]}`;
+
+    return map[key][item] ? `${acc}${!index ? "" : ","}${map[key][item]}` : acc;
   }, "");
 };
 
