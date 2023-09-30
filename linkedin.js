@@ -54,13 +54,13 @@ const applyLinkedIn = async (browser) => {
 const buildSearchQuery = ({
   keywords = "",
   experienceLevel = [],
-  workingStyle = [],
+  workingStyle = ["remote"],
   jobType = [],
   easyApply = false,
   under10Applicants = false,
   datePosted = "pastDay",
   sortBy = "mostRecent",
-  ignoreCompanies = [`turing`, `globo`],
+  ignoreCompanies = [],
   distance = 50, // 0, 5, 10, 25, 50, 100
   location = "United States",
 } = {}) => {
@@ -101,7 +101,7 @@ const reduceQuery = (itemArray, map) => {
     if (index === itemArray.length - 1 && map[item])
       return `${Object.keys(map)[0]}${acc},${map[item]}`;
 
-    return map[item] ? `${acc},${map[item]}` : acc;
+    return map[item] ? `${acc}${!index ? "" : ","}${map[item]}` : acc;
   }, "");
 };
 
