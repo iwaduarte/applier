@@ -51,7 +51,26 @@ const applyLinkedIn = async (browser) => {
   const URL = buildSearchQuery({ keywords: "node.js " });
   await page.goto(URL);
   await page.waitForNavigation({ timeout: 1000 }).catch((err) => err);
+
+  await matchCompanies(page);
 };
+
+const matchCompanies = async (page) => {
+  const allJobsForPage = await page.evaluate(() => {
+    return document.querySelectorAll(".scaffold-layout__list-container li");
+  });
+  await allJobsForPage.reduce(async (promiseAcc, li) => {
+    const acc = await promiseAcc;
+    await li.click();
+    await page.waitForTimeout(1000);
+
+    const newText = await page.$eval(".newClass", (el) => el.textContent);
+    console.log(`Text content of .newClass after click: ${newText}`);
+
+    return [...acc, newText];
+  }, Promise.resolve([]));
+};
+
 const buildSearchQuery = ({
   keywords = "",
   experienceLevel = [],
